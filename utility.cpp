@@ -26,7 +26,8 @@ lli Utility::getHash(string key){
     int i;
     lli mod = pow(2,M);
     unsigned char unsigned_key[key.length()+1];
-    for(i=0;i<key.length();i++){
+    for(i=0;i<key.length();i++)
+    {
         unsigned_key[i] = key[i];
     }
     unsigned_key[i] = '\0';
@@ -74,7 +75,6 @@ pair<lli,string> Utility::getKeyAndVal(string keyAndVal){
 bool Utility::isKeyValue(string id){
 
     int pos = id.find(":");
-
     if(pos == -1)
         return false;
 

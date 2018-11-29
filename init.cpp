@@ -21,7 +21,7 @@ void initialize(NodeDetails &nodeDetails)
 */
 	nodeDetails.sp.assignAndBindToIpAndPort();
 
-	cout << "Started at port number: " << nodeDetails.sp.getPortNumber() << endl;
-
-	cout << "Type help to know more\n";
+	cout << "\n";
+	cout << "Port number assigned: " << nodeDetails.sp.getPortNumber() << endl;
+	cout << "Welcome to Fargo Chord\n\n";
 }

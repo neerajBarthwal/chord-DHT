@@ -20,7 +20,7 @@ int main()
 	initialize(nodeDetails);
 
 	string command;
-
+	showMenuDriven();
 	while (1)
 	{
 		cout << "> ";
@@ -74,14 +74,14 @@ void processOneLengthCommands(NodeDetails &nodeDetails, string arg, vector<strin
 		}
 	}
 
-	else if (arg == "printstate")
+	else if (arg == "printdetails")
 	{
 		if (nodeDetails.getStatus() == false)
 		{
 			cout << "This node is not in the ring.\n";
 		}
 		else
-			printState(nodeDetails);
+			printdetails(nodeDetails);
 	}
 
 	else if (arg == "leave")
@@ -106,11 +106,6 @@ void processOneLengthCommands(NodeDetails &nodeDetails, string arg, vector<strin
 			nodeDetails.printKeys();
 	}
 
-	else if (arg == "help")
-	{
-		showHelp();
-	}
-
 	else
 	{
 		cout << "#------------------- Invalid Command ---------------------#\n";
@@ -119,20 +114,8 @@ void processOneLengthCommands(NodeDetails &nodeDetails, string arg, vector<strin
 
 void processTwoLengthCommands(NodeDetails &nodeDetails, string arg, vector<string> &arguments)
 {
-	if (arg == "port")
-	{
-		if (nodeDetails.getStatus() == true)
-		{
-			cout << "You can't change port number.\n";
-		}
-		else
-		{
-			int newPortNo = atoi(arguments[1].c_str());
-			nodeDetails.sp.changePortNumber(newPortNo);
-		}
-	}
 
-	else if (arg == "get")
+	if (arg == "get")
 	{
 		if (nodeDetails.getStatus() == false)
 		{

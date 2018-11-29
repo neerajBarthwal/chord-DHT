@@ -21,13 +21,13 @@ void put(string key,string value,NodeDetails &nodeDetails);
 void get(string key,NodeDetails nodeDetails);
 void create(NodeDetails &nodeDetails);
 void join(NodeDetails &nodeDetails,string ip,string port);
-void printState(NodeDetails nodeDetails);
+void printdetails(NodeDetails nodeDetails);
 void listenTo(NodeDetails &nodeDetails);
 void doStabilize(NodeDetails &nodeDetails);
 void callNotify(NodeDetails &nodeDetails,string ipAndPort);
 void callFixFingers(NodeDetails &nodeDetails);
 void doTask(NodeDetails &nodeDetails,int newSock,struct sockaddr_in client,string nodeIdString);
 void leave(NodeDetails &nodeDetails);
-void showHelp();
+void showMenuDriven();
 
 #endif

@@ -7,16 +7,17 @@
 
 typedef long long ll;
 
-pair<ll,pair<string,int>> find_successor(ll identifier){ //return pair of address and id of successor
-	//pair<pair<string,int>,ll> predecessor_details=find_predecessor(id);
-	//pair<pair<string,int>,ll> successor_details=get_successor_of(predecessor_details);
+pair<ll,pair<string,int>> find_successor(ll identifier){ // return pair of address and id of successor
+	// pair<pair<string,int>,ll> predecessor_details=find_predecessor(id);
+	// pair<pair<string,int>,ll> successor_details=get_successor_of(predecessor_details);
 	pair <ll, pair<string,int>> my_details;
 	my_details.first = node.identifier;
 	my_details.second.first = node.getIp();
 	my_details.second.second = node.getPort();
 
 	//my succesor is the succesor of given identifier
-	if(identifier > node.identifier && identifier <= node.successor.first){
+	if(identifier > node.identifier && identifier <= node.successor.first)
+	{
 		return node.successor;
 	}	
 
@@ -25,7 +26,7 @@ pair<ll,pair<string,int>> find_successor(ll identifier){ //return pair of addres
 		return my_details;
 	}
 
-	//only two nodes exist in ring
+	// only two nodes exist in ring
 	else if(node.successor.first == node.predecessor.first){
 		if(node.successor.first >= node.identifier){
 			if(identifier > node.successor.first || identifier < node.identifier)

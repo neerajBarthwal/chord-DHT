@@ -272,6 +272,7 @@ void NodeDetails::stabilize(){
 	if(predecessorHash == -1 || predecessor.second == -1)
 		return;
 
+// Last node in ring
 	if(predecessorHash > id || (predecessorHash > id && predecessorHash < successor.second) || (predecessorHash < id && predecessorHash < successor.second)){
 		successor = predNode;
 	}
