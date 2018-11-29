@@ -72,10 +72,10 @@ void create(NodeDetails &nodeDetails)
     string key = ip + ":" + (to_string(port));
 
     lli hash = util.getHash(key);
-    cout << "#-------------------------------------------------------------------------------------------#\n";
+    cout << "#----------------------------------------------------------------------#\n";
     cout << "Ring Created\n";
     cout << "identifier is: " << hash << "\n";
-    cout << "#-------------------------------------------------------------------------------------------#\n\n";
+    cout << "#------------------------------------------------------------------------------#\n\n";
 
     nodeDetails.setId(hash);
     nodeDetails.setSuccessor(ip, port, hash);
@@ -136,9 +136,9 @@ void join(NodeDetails &nodeDetails, string ip, string port)
 //    cout << "reveived from server" << ipAndPort << "\n";
 
     close(sock);
-    cout << "#---------------------------------------------------------------------------------------------------------------#\n";
+    cout << "#--------------------------------------------------------------------------------#\n";
     cout << "Successfully joined the ring.\n";
-    cout << "#---------------------------------------------------------------------------------------------------------------#\n\n";
+    cout << "#--------------------------------------------------------------------------------#\n\n";
     string key = ipAndPort;
     lli hash = util.getHash(key);
     cout << "Identifier is: " << nodeId << "\n";
@@ -399,12 +399,11 @@ void callNotify(NodeDetails &nodeDetails, string ipAndPort)
 void showMenuDriven()
 {
     cout << "################################################################################\n";
-    cout << "1) create : Creates a DHT ring\n";
-    cout << "2) join <ip> <port> : Join ring by connecting to main node having ip and port\n";
-    cout << "3) printdetails : Print successor, predecessor, fingerTable and Successor list\n";
-    cout << "4) print : Print all keys and values present in that node\n";
-    cout << "5) port : Display port number on which node is listening\n";
-    cout << "6) put <key> <value> : put key and value to the node it belongs to\n";
-    cout << "7) get <key> : get value of mentioned key\n";
+    cout << "1) create : Creates a DHT ring.\n";
+    cout << "2) join <ip> <port> : Join the existing ring.\n";
+    cout << "3) printdetails : Print predecessor,successor,FingerTable and Successor list\n";
+    cout << "4) print : Print all keys and values present in the corresponding node\n";
+    cout << "5) put <key> <value> : put key and value to the node it belongs to\n";
+    cout << "6) get <key> : get value of provided key\n";
     cout << "################################################################################\n\n";
 }

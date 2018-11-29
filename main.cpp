@@ -23,7 +23,7 @@ int main()
 	showMenuDriven();
 	while (1)
 	{
-		cout << "> ";
+		printf("Enter Command\n");
 		getline(cin, command);
 
 		Utility util = Utility();
