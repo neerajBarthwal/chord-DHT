@@ -233,7 +233,7 @@ void leave(NodeDetails &nodeDetails)
     strcpy(keysAndValuesChar, keysAndValues.c_str());
 
     send(sock, keysAndValuesChar, strlen(keysAndValuesChar), 0);
-    cout << "Ritik\n";
+    //cout << "Ritik\n";
     close(sock);
 }
 
@@ -367,7 +367,7 @@ void doStabilize(NodeDetails &nodeDetails)
         nodeDetails.stabilize();
         nodeDetails.updateSuccessorList();
         nodeDetails.fixFingers();
-        this_thread::sleep_for(chrono::milliseconds(500));
+        this_thread::sleep_for(chrono::milliseconds(200));
     }
 }
 

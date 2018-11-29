@@ -373,13 +373,14 @@ lli Utility::getSuccessorId(string ip,int port){
     
     SocketAndPort sp;
     int sock = sp.connect_socket(ip,to_string(port));
-
 /*     setsockopt(sock,SOL_SOCKET,SO_RCVTIMEO,(char*)&timer,sizeof(struct timeval)); */
 
     char msg[] = "finger";
 
-    if (send(sock, msg, strlen(msg) , 0) == -1){
-        cout<<"in getsuccesorid"<<endl;
+    if (sock ==-1 || send(sock, msg, strlen(msg) , 0) == -1){
+    	close(sock);
+        //cout<<"in getsuccesorid"<<endl;
+        return -1;
        // perror("error");
         //exit(-1);
     }
@@ -434,10 +435,12 @@ pair< pair<string,int> , lli > Utility::getPredecessorNode(string ip,int port,st
     char ipAndPortChar[40];
     strcpy(ipAndPortChar,msg.c_str());
 
-    if (send(sock, ipAndPortChar, strlen(ipAndPortChar), 0) < 0){
-        perror("error in predecessor node\n");
-        cout<<"123\n";
-        exit(-1);
+    if (sock==-1 || send(sock, ipAndPortChar, strlen(ipAndPortChar), 0) < 0){
+        pair< pair<string,int> , lli > node = make_pair(make_pair("",-1),-1);
+        return node;
+        //perror("error in predecessor node\n");
+        //cout<<"123\n";
+        //exit(-1);
     }
 
   //cout << "Ritik here\n";
