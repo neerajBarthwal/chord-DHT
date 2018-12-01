@@ -21,6 +21,20 @@ void put(string key, string value, NodeDetails &nodeDetails)
 
     else
     {
+        string file_path=string(my_files_path)+"/"+key;
+
+    //string file_path="sultan.mp3";
+
+    // ofstream file (file_path);
+    struct stat st;
+      if(stat(file_path.c_str(), &st) != 0) {
+         cout<<"file does not exist in "<<string(my_files_path)<<"\n";
+         return;
+      }
+      else if(S_ISDIR(st.st_mode)){
+        cout<<"This is a directory cannot share \n";
+        return;
+      }
 
         lli keyHash = util.getHash(key);
         cout << "Key is " << key << " and hash is " << keyHash << endl;
@@ -59,6 +73,105 @@ void get(string key, NodeDetails nodeDetails)
         else
             cout << "Found key " << key << " : value " << val << endl;
     }
+}
+
+
+// find the node which has required file and download if it has it.
+void download(NodeDetails &nodeDetails,string key)
+{
+
+    if (key == "")
+    {
+        cout << "Key field is empty\n";
+        return;
+    }
+    else
+    {
+
+        lli keyHash = util.getHash(key);
+
+        pair<pair<string, int>, lli> node = nodeDetails.findSuccessor(keyHash);
+
+        string val = util.getKeyFromNode(node, to_string(keyHash));
+
+        if (val == ""){  // file not found
+            cout << "No one in the ring has this file\n";
+        }
+
+        else{ //file found
+            string uploader_address=val;
+            Utility util;
+            pair<string,int> ipAndPort = util.getIpAndPort(uploader_address);
+
+            string ip = ipAndPort.first;
+            int port = ipAndPort.second;
+            thread th(requestDownload,nodeDetails,ip,port,key);
+            th.detach();
+        }
+    }
+}
+
+void requestDownload(NodeDetails nodeDetails,string ip,int port,string fileName){
+    string file_path=string(my_files_path)+"/"+fileName;
+    if (util.isNodeAlive(ip, port) == false)
+    {
+        cout << "Sorry but this node is currently down.Try after some time.\n";
+        return;
+    }
+
+    int sock = nodeDetails.sp.connect_socket(ip, to_string(port));
+    string message="download "+fileName;
+    char message_char[41];
+    strcpy(message_char, message.c_str());
+
+/* 
+   Node send id to successor.
+*/
+    if (send(sock, message_char, strlen(message_char), 0) == -1)
+    {
+        //cout << "In JOIN1\n";
+    }
+
+    char response[40];
+    int len;
+    if ((len = recv(sock, response, 1024, 0)) == -1)
+    {
+        //cout << "In JOIN2\n";
+    }
+    response[len] = '\0';
+//    cout << "reveived from server" << ipAndPort << "\n";
+    string reply=response;
+    if(reply == "yes"){ // file is present download
+        message="ok";
+        strcpy(message_char, message.c_str());
+
+    /* 
+       Node send id to successor.
+    */
+        if (send(sock, message_char, strlen(message_char), 0) == -1)
+        {
+            //cout << "In JOIN1\n";
+        }
+        size_t datasize;
+        FILE* fd = fopen(file_path.c_str(), "wb");
+        char buffer[256];
+        int BUFFER_SIZE=256;
+        while (true){
+            datasize = recv(sock, buffer, BUFFER_SIZE, 0);
+            //cout<<datasize<<"\n";
+            if(datasize == 0){
+                break;
+            }
+            fwrite(&buffer, 1, datasize, fd);
+            //print_on_screen(to_string(datasize));
+        }
+        fclose(fd);
+        cout<<"file downloaded\n";
+    }
+    else{
+        cout<<"File is not present. It may have been deleted\n";
+    }
+    close(sock);
 }
 
 /* 
@@ -240,10 +353,124 @@ void leave(NodeDetails &nodeDetails)
 /* 
     Does Task based on message received.
 */
+
+void upload(string message,int sock,struct sockaddr_in client){
+    socklen_t l = sizeof(client);
+    vector<string> processed_message=util.split_string(message);
+    string file_path=string(my_files_path)+"/"+processed_message[1];
+
+    //string file_path="sultan.mp3";
+
+    // ofstream file (file_path);
+    string reply;
+    struct stat st;
+  if(stat(file_path.c_str(), &st) != 0) {
+    reply="no";
+  }
+  else if(S_ISDIR(st.st_mode)){
+    reply="no";
+  }
+  else{
+    reply="yes";
+  }
+    
+    // if (file.is_open()){ // file exists
+    //     reply="yes";
+    //     file.close();
+    // }
+    // else{
+    //     reply="no";
+    // }
+
+
+    char response[1000];
+    strcpy(response,reply.c_str());
+
+    send(sock,response,strlen(response),0);
+
+    message="";
+    if(reply=="no"){
+        cout<<processed_message[1]<<" file has been removed from my_files folder. \n";
+        close(sock);
+        return;
+    }
+    char response_from_requester[1000];
+    int len=recv(sock,response_from_requester,strlen(response_from_requester),0);
+    response_from_requester[len]='\0';
+
+     char buffer[256];
+     int BUFFER_SIZE=256;
+    cout<<file_path<<"\n";
+
+
+  //   FILE* fp = fopen(file_path.c_str(), "rb"); 
+  // long int res;
+  //   // checking if the file exist or not 
+  //   if (fp == NULL) { 
+  //       printf("File Not Found!\n"); 
+  //       res=0; 
+  //   } 
+  
+  //   fseek(fp, 0L, SEEK_END); 
+  
+  //   // calculating the size of the file 
+  //   res = ftell(fp); 
+  
+  //   // closing the file 
+  //   fclose(fp); 
+  
+  //   //cout<<"file size is 1: "<<res << endl; 
+
+
+    FILE *fd = fopen(file_path.c_str(), "rb");
+    size_t rret, wret;
+    int bytes_read;
+
+    while (!feof(fd)) {
+        //cout<<"here\n";
+        //perror("error: ");
+        if ((bytes_read = fread(&buffer, 1,BUFFER_SIZE, fd)) > 0){
+            //cout<<bytes_read<<"\n";
+            send(sock, buffer, bytes_read, 0);
+            //print_on_screen("sent "+to_string(bytes_read));
+        }
+        else
+            break;
+    }
+    fclose(fd);
+    close(sock);
+}
 void doTask(NodeDetails &nodeDetails, int newSock, struct sockaddr_in client, string nodeIdString)
 {
+    bool do_it=true;
+    if(nodeIdString.find("download") != -1){
+        do_it=false;
+        /*string file_path="sultan.mp3";
+        FILE* fp = fopen(file_path.c_str(), "rb"); 
+          long int res;
+            // checking if the file exist or not 
+            if (fp == NULL) { 
+                printf("File Not Found!\n"); 
+                res=0; 
+            } 
+          
+            fseek(fp, 0L, SEEK_END); 
+          
+            // calculating the size of the file 
+            res = ftell(fp); 
+          
+            // closing the file 
+            fclose(fp); 
+          
+            cout<<"file size is"<<res;*/
 
-    if (nodeIdString.find("storeKeys") != -1)
+
+
+        thread th(upload,nodeIdString,newSock,client);
+        th.detach();
+    }
+
+    else if (nodeIdString.find("storeKeys") != -1)
     {
         util.storeAllKeys(nodeDetails, nodeIdString);
     }
@@ -299,8 +526,12 @@ void doTask(NodeDetails &nodeDetails, int newSock, struct sockaddr_in client, st
     {
         util.sendSuccessor(nodeDetails, nodeIdString, newSock, client);
     }
-
-    close(newSock);
+    if(do_it){
+        close(newSock);
+    }
+    else{
+        //cout<<"fuck\n";
+    }
 //  cout<<"closed after sending neccessary keys\n";
 }
 
@@ -397,13 +628,15 @@ void callNotify(NodeDetails &nodeDetails, string ipAndPort)
     Menu Driven Interface using help
  */
 void showMenuDriven()
-{
+{  
     cout << "################################################################################\n";
+    cout<<"Files to be shared and downloaded are kept in my_files folder\n\n";
     cout << "1) create : Creates a DHT ring.\n";
-    cout << "2) join <ip> <port> : Join the existing ring.\n";
-    cout << "3) printdetails : Print predecessor,successor,FingerTable and Successor list\n";
-    cout << "4) print : Print all keys and values present in the corresponding node\n";
-    cout << "5) put <key> <value> : put key and value to the node it belongs to\n";
-    cout << "6) get <key> : get value of provided key\n";
+    cout << "2) join <ip>:<port> : Join the existing ring.\n";
+    cout << "3) printdetails : Print predecessor, successor, FingerTable and Successor list\n";
+    cout << "4) print : Print all keys and IP:PORT present in the corresponding node\n";
+    cout << "5) put <key>: put key into the chord network. Key is the filename to be shared.\n";
+    cout << "6) get <key> : get IP:PORT of provided key\n";
+    cout << "7) download <key> : download the file with name \"key\" into my_files folder. \n";
     cout << "################################################################################\n\n";
 }

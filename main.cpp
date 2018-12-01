@@ -12,10 +12,30 @@ void processOneLengthCommands(NodeDetails &nodeDetails, string arg, vector<strin
 void processTwoLengthCommands(NodeDetails &nodeDetails, string arg, vector<string> &arguments);
 void processThreeLengthCommands(NodeDetails &nodeDetails, string arg, vector<string> &arguments);
 
-int main()
+string my_ip;
+int my_port;
+int main(int argc, char*argv[])
 {
 
 	NodeDetails nodeDetails;
+	if(argc==1){
+		cout<<"Enter IP:PORT\n"<<endl;
+		exit(0);
+	}
+
+	if (mkdir(my_files_path, 0777) == -1) 
+        cerr << "Error in creating files Directory:  " << strerror(errno) << endl; 
+  
+    else
+        cout << "Directory created"; 
+
+	string address = argv[1];
+
+	Utility util;
+	pair<string,int> ipAndPort = util.getIpAndPort(address);
+
+	my_ip = ipAndPort.first;
+	my_port = ipAndPort.second;
 
 	initialize(nodeDetails);
 
@@ -25,6 +45,9 @@ int main()
 	{
 		printf("Enter Command\n");
 		getline(cin, command);
+
+		if(command=="")
+			continue;
 
 		Utility util = Utility();
 		vector<string> arguments = util.split_string(command);
@@ -114,8 +137,26 @@ void processOneLengthCommands(NodeDetails &nodeDetails, string arg, vector<strin
 
 void processTwoLengthCommands(NodeDetails &nodeDetails, string arg, vector<string> &arguments)
 {
+	if(arg == "join"){
+				if(nodeDetails.getStatus() == true){
+					cout<<"This node is already on the ring.\n";
+				}
+				else{
+					Utility util;
+					string address=arguments[1];
+					pair<string,int> ipAndPort = util.getIpAndPort(address);
 
-	if (arg == "get")
+					string ip = ipAndPort.first;
+					int port = ipAndPort.second;
+					//cout<<"joining "<<ip<<":"<<port<<"\n";
+					join(ref(nodeDetails),ip,to_string(port));
+/* 					thread one(join,ref(nodeDetails),arguments[1],arguments[2]);
+					one.detach(); */
+				}
+
+		}
+
+	else if (arg == "get")
 	{
 		if (nodeDetails.getStatus() == false)
 		{
@@ -123,6 +164,26 @@ void processTwoLengthCommands(NodeDetails &nodeDetails, string arg, vector<strin
 		}
 		else
 			get(arguments[1], nodeDetails);
+	}
+
+	else if (arg == "download")
+	{
+		if (nodeDetails.getStatus() == false)
+		{
+			cout << "This node is not in the ring.\n";
+		}
+		else
+			download(nodeDetails,arguments[1]);
+	}
+
+	else if(arg == "put"){
+		if(nodeDetails.getStatus() == false){
+			cout<<"This node is not in the ring.\n";
+		}
+		else{
+			string address=my_ip+":"+to_string(my_port);
+			put(arguments[1],address,nodeDetails);
+		}
 	}
 
 	else
@@ -133,30 +194,8 @@ void processTwoLengthCommands(NodeDetails &nodeDetails, string arg, vector<strin
 
 void processThreeLengthCommands(NodeDetails &nodeDetails, string arg, vector<string> &arguments)
 {
-	if (arg == "join")
-	{
-		if (nodeDetails.getStatus() == true)
-		{
-			cout << "This node is already on the ring.\n";
-		}
-		else
-		{
-			join(ref(nodeDetails), arguments[1], arguments[2]);
-			/*
-	thread one(join,ref(nodeDetails),arguments[1],arguments[2]);
-	one.detach();
-*/
-		}
-	}
+	if(arg == ""){
 
-	else if (arg == "put")
-	{
-		if (nodeDetails.getStatus() == false)
-		{
-			cout << "This node is not in the ring.\n";
-		}
-		else
-			put(arguments[1], arguments[2], nodeDetails);
 	}
 
 	else

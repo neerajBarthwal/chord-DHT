@@ -22,10 +22,19 @@
 #include <cmath>
 #include <mutex>
 #include <sstream>
+#include <fstream>
+
+#include <sys/stat.h> 
+#include <sys/types.h> 
 
 #define M 48
 #define R 10
 
+#define my_files_path "my_files"
+
 using namespace std;
+
+extern string my_ip;
+extern int my_port;
 
 #endif

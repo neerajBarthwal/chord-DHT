@@ -33,18 +33,15 @@ int SocketAndPort::connect_socket(string ip,string port)
 
 void SocketAndPort::assignAndBindToIpAndPort(){
 
-	/* generating a port number between 1024 and 65535 */
-	srand(time(0));
-	portNoServer = rand() % 65536;
-	if(portNoServer < 1024)
-		portNoServer += 1024;
+	portNoServer = my_port;
 
 	socklen_t len = sizeof(current);
 
 	sock = socket(AF_INET,SOCK_STREAM,0);
 	current.sin_family = AF_INET;
-	current.sin_port = htons(portNoServer);
-	current.sin_addr.s_addr = inet_addr("127.0.0.1");
+	current.sin_port = htons(my_port);
+	current.sin_addr.s_addr = inet_addr(my_ip.c_str());
+	
 
 	if( bind(sock,(struct sockaddr *)&current,len) < 0){
 		perror("error");
@@ -62,7 +59,7 @@ bool SocketAndPort::isPortInUse(int portNo){
 	socklen_t len = sizeof(newCurr);
 	newCurr.sin_port = htons(portNo);
 	newCurr.sin_family = AF_INET;
-	newCurr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	newCurr.sin_addr.s_addr = inet_addr(my_ip.c_str());
 	
 	if( bind(newSock,(struct sockaddr *)&newCurr,len) < 0){
 		perror("error");
